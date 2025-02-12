@@ -2,7 +2,7 @@
 Intentions of this exercise:
 * Appreciate abstraction of lower level management in high level languages like Python.
 * Solidify low level concepts.
-* Credits to team at boot.dev ((link to lesson)[https://www.youtube.com/watch?v=rJrd2QMVbGM&pp=ygUfbWVtb3J5IG1hbmFnZW1lbnQgaW4gYyBib290IGRldg%3D%3D])
+* Credits to team at boot.dev [link to lesson](https://www.youtube.com/watch?v=rJrd2QMVbGM&pp=ygUfbWVtb3J5IG1hbmFnZW1lbnQgaW4gYyBib290IGRldg%3D%3D)
 
 
 Let's call our language - FooBarLang (I asked ChatGPT for suggestions)
