@@ -47,6 +47,7 @@ void frame_free(frame_t *frame) {
   if (frame == NULL || frame->references == NULL) return;
   stack_free(frame->references);
   free(frame);
+  frame = NULL;
   return;
 }
 
@@ -61,6 +62,7 @@ void vm_free(vm_t* vm){
 	}
 	stack_free(vm->objects);
 	free(vm);
+	vm = NULL;
 }
 
 void frame_reference_object(frame_t *frame, foobar_object_t *obj) {
@@ -95,7 +97,7 @@ void trace_blacken_object(stack_toy_t* gray_objects, foobar_object_t* obj){
 			break;
 		case LIST:
 			for (int i=0; i<obj->data.f_list.size; i++){
-	        trace_mark_object(gray_objects, obj->data.f_list.elements[i]);
+	        	trace_mark_object(gray_objects, obj->data.f_list.elements[i]);
 		    }
 		    break;
 	}

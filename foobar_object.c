@@ -149,6 +149,7 @@ void foobar_object_free(foobar_object_t* obj){
 		case LIST:{
 			foobar_list_t* list = &obj->data.f_list;
 			free(list->elements);
+			list->elements = NULL;
 			break;
 		}
 			

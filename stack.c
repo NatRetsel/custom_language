@@ -35,9 +35,11 @@ void stack_free(stack_toy_t *stack) {
 
   if (stack->data != NULL) {
     free(stack->data);
+    stack->data = NULL;
   }
 
   free(stack);
+  stack = NULL;
 }
 
 void stack_remove_nulls(stack_toy_t *stack) {
