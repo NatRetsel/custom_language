@@ -1,7 +1,8 @@
+#include <stddef.h>
 #include "vm.h"
 #include "foobar_object.h"
 
-void trace_blacken_objects(stack_t* gray_objects, foobar_object_t* obj);
+void trace_blacken_objects(stack_toy_t* gray_objects, foobar_object_t* obj);
 
 void vm_track_object(vm_t *vm, foobar_object_t *obj) {
   if (vm == NULL || obj == NULL) return;
@@ -23,15 +24,6 @@ vm_t *vm_new(){
 	return vm;
 }
 
-void vm_free(vm_t *vm){
-	if (vm != NULL){
-		stack_free(vm->frames);
-		stack_free(vm->objects);
-		free(vm);
-	}
-	return;
-}
-
 void vm_frame_push(vm_t *vm, frame_t *frame) {
 	// note we could use stack_push as well, but stick with
 	// frame_push to be pedantic about pushing frame_t into vm_t
@@ -46,7 +38,7 @@ frame_t *vm_new_frame(vm_t *vm) {
   frame_t* frame_obj = malloc(sizeof(frame_t));
   if (frame_obj == NULL) return NULL;
   frame_obj->references = stack_new(8);
-  vm_frame_push(vm->frames, frame_obj);
+  vm_frame_push(vm, frame_obj);
   return frame_obj;
 }
 
@@ -87,9 +79,31 @@ void mark(vm_t* vm){
 	}
 }
 
+void trace_mark_object(stack_toy_t *gray_objects, foobar_object_t *obj) {
+  if (obj == NULL || obj->is_marked == true) return;
+  obj->is_marked = true;
+  stack_push(gray_objects, obj);
+  return;
+}
+
+void trace_blacken_object(stack_toy_t* gray_objects, foobar_object_t* obj){
+	if (gray_objects == NULL || obj == NULL) return;
+	switch (obj->kind){
+		case INTEGER:
+		case FLOAT:
+		case STRING:
+			break;
+		case LIST:
+			for (int i=0; i<obj->data.f_list.size; i++){
+	        trace_mark_object(gray_objects, obj->data.f_list.elements[i]);
+		    }
+		    break;
+	}
+	return;
+}
 
 void trace(vm_t *vm){
-	stack_t* gray_obj = stack_new(8);
+	stack_toy_t* gray_obj = stack_new(8);
 	if (gray_obj == NULL) return;
 	for (int i=0; i<vm->objects->count; i++){
 		foobar_object_t* obj = vm->objects->data[i];
@@ -104,28 +118,9 @@ void trace(vm_t *vm){
 	stack_free(gray_obj);
 }
 
-void trace_blacken_objects(stack_t* gray_objects, foobar_object_t* obj){
-	if (gray_objects == NULL || obj == NULL) return;
-	switch (obj->kind){
-		case INTEGER:
-		case FLOAT:
-		case STRING:
-			break;
-		case LIST:
-			for (int i=0; i<obj->data.v_array.size; i++){
-	        trace_mark_object(gray_objects, obj->data.v_array.elements[i]);
-		    }
-		    break;
-	}
-	return;
-}
 
-void trace_mark_object(stack_t *gray_objects, foobar_object_t *obj) {
-  if (obj == NULL || obj->is_marked == true) return;
-  obj->is_marked = true;
-  stack_push(gray_objects, obj);
-  return;
-}
+
+
 
 void sweep(vm_t *vm) {
   for (int i=0; i<vm->objects->count; i++){
@@ -134,7 +129,7 @@ void sweep(vm_t *vm) {
       foobar_obj->is_marked = false;
       continue;
     }else{
-      foobar_object_free(snek_obj);
+      foobar_object_free(foobar_obj);
       vm->objects->data[i] = NULL;
     }
   }

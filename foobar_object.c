@@ -75,24 +75,24 @@ bool list_set(foobar_object_t* foobar_obj, int index, foobar_object_t* value){
 	return true;
 }
 
-foobar_object_t* foobar_add(foobar_object_t* foobar_obj_one, foobar_object_t* foobar_obj_two){
+foobar_object_t* foobar_add(vm_t* vm, foobar_object_t* foobar_obj_one, foobar_object_t* foobar_obj_two){
 
 	switch (foobar_obj_one->kind){
 		case INTEGER:
 			if (foobar_obj_two->kind == INTEGER){
-				return new_int(foobar_obj_one->data.f_int + foobar_obj_two->data.f_int);
+				return new_integer(vm, foobar_obj_one->data.f_int + foobar_obj_two->data.f_int);
 			}
 			if (foobar_obj_two->kind == FLOAT){
-				return new_float(foobar_obj_one->data.f_int + foobar_obj_two->data.f_float);
+				return new_float(vm, foobar_obj_one->data.f_int + foobar_obj_two->data.f_float);
 			}
 			return NULL;
 
 		case FLOAT:
 			if (foobar_obj_two->kind == INTEGER){
-				return new_float(foobar_obj_one->data.f_float + foobar_obj_two->data.f_int);
+				return new_float(vm, foobar_obj_one->data.f_float + foobar_obj_two->data.f_int);
 			}
             if (foobar_obj_two->kind == FLOAT){
-				return new_float(foobar_obj_one->data.f_float + foobar_obj_two->data.f_float);
+				return new_float(vm, foobar_obj_one->data.f_float + foobar_obj_two->data.f_float);
 			}
 			
 			return NULL;
@@ -105,7 +105,7 @@ foobar_object_t* foobar_add(foobar_object_t* foobar_obj_one, foobar_object_t* fo
 				strcat(temp, foobar_obj_one->data.f_string);
 				strcat(temp, foobar_obj_two->data.f_string);
 				
-				foobar_object_t * foobar_obj = new_string(temp);
+				foobar_object_t * foobar_obj = new_string(vm, temp);
 				free(temp);
 				return foobar_obj;
 			}
@@ -115,7 +115,7 @@ foobar_object_t* foobar_add(foobar_object_t* foobar_obj_one, foobar_object_t* fo
 			if (foobar_obj_two->kind == LIST){
 				int lengthone = foobar_obj_one->data.f_list.size;
 				int lengthtwo = foobar_obj_two->data.f_list.size;
-				foobar_object_t* foobar_list = new_list((size_t)(lengthone+lengthtwo));
+				foobar_object_t* foobar_list = new_list(vm, (size_t)(lengthone+lengthtwo));
 				for (int i=0; i<lengthone; i++){
 					list_set(foobar_list,i,foobar_obj_one->data.f_list.elements[i]);
 				}
@@ -134,7 +134,7 @@ foobar_object_t* _new_foobar_obj(vm_t* vm){
 	foobar_object_t* foobar_obj = malloc(sizeof(foobar_object_t));
 	if (foobar_obj == NULL) return NULL;
     foobar_obj->is_marked = false;
-	vm_track_object(vm->objects, foobar_obj);
+	vm_track_object(vm, foobar_obj);
 	return foobar_obj;
 }
 
@@ -146,10 +146,12 @@ void foobar_object_free(foobar_object_t* obj){
 		case STRING:
 			free(obj->data.f_string);
 			break;
-		case LIST:
-			foobar_object_t* list = obj->data.f_list;
+		case LIST:{
+			foobar_list_t* list = &obj->data.f_list;
 			free(list->elements);
 			break;
+		}
+			
 	}
 	free(obj);
 }

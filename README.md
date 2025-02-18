@@ -419,15 +419,15 @@ typedef struct Stack {
   size_t count; //no. of elements
   size_t capacity; //size
   void **data; // no specific data format
-} stack_t;
+} stack_toy_t;
 
-stack_t *stack_new(size_t capacity);
+stack_toy_t *stack_new(size_t capacity);
 
-void stack_push(stack_t *stack, void *obj);
-void *stack_pop(stack_t *stack);
+void stack_push(stack_toy_t *stack, void *obj);
+void *stack_pop(stack_toy_t *stack);
 
-void stack_free(stack_t *stack);
-void stack_remove_nulls(stack_t *stack);
+void stack_free(stack_toy_t *stack);
+void stack_remove_nulls(stack_toy_t *stack);
 ```
 
 
@@ -437,7 +437,7 @@ void stack_remove_nulls(stack_t *stack);
 
 #include "stack.h"
 
-void stack_push(stack_t *stack, void *obj) {
+void stack_push(stack_toy_t *stack, void *obj) {
   if (stack->count == stack->capacity) {
     // Double stack capacity to avoid reallocing often
     stack->capacity *= 2;
@@ -454,7 +454,7 @@ void stack_push(stack_t *stack, void *obj) {
   return;
 }
 
-void *stack_pop(stack_t *stack) {
+void *stack_pop(stack_toy_t *stack) {
   if (stack->count == 0) {
     return NULL;
   }
@@ -463,7 +463,7 @@ void *stack_pop(stack_t *stack) {
   return stack->data[stack->count];
 }
 
-void stack_free(stack_t *stack) {
+void stack_free(stack_toy_t *stack) {
   if (stack == NULL) {
     return;
   }
@@ -475,7 +475,7 @@ void stack_free(stack_t *stack) {
   free(stack);
 }
 
-void stack_remove_nulls(stack_t *stack) {
+void stack_remove_nulls(stack_toy_t *stack) {
   size_t new_count = 0;
 
   // Iterate through the stack and compact non-NULL pointers.
@@ -517,8 +517,8 @@ stack_t *stack_new(size_t capacity) {
 #include "stack.h"
 
 typedef struct VirtualMachine {
-  stack_t *frames;
-  stack_t *objects;
+  stack_toy_t *frames;
+  stack_toy_t *objects;
 } vm_t;
 
 vm_t *vm_new();
@@ -578,7 +578,7 @@ frame_t *vm_new_frame(vm_t *vm) {
   frame_t* frame_obj = malloc(sizeof(frame_t));
   if (frame_obj == NULL) return NULL;
   frame_obj->references = stack_new(8);
-  vm_frame_push(vm->frames, frame_obj);
+  vm_frame_push(vm, frame_obj);
   return frame_obj;
 }
 
@@ -602,9 +602,10 @@ void vm_track_object(vm_t *vm, foobar_object_t *obj) {
     case INTEGER:
     case FLOAT:
     case STRING:
-    case LIST:
-      stack_push(vm->objects, obj);
-      break;
+    case LIST:{
+		stack_push(vm->objects, obj);
+      	break;
+	}   
   }
   return;
 }
@@ -620,7 +621,7 @@ foobar_object_t* _new_foobar_obj(vm_t* vm);
 foobar_object_t* _new_foobar_obj(vm_t* vm){
 	foobar_object_t* foobar_obj = malloc(sizeof(foobar_object_t));
 	if (foobar_obj == NULL) return NULL;
-	vm_track_object(vm->objects, foobar_obj);
+	vm_track_object(vm, foobar_obj);
 	return foobar_obj;
 }
 ```
@@ -644,10 +645,11 @@ void foobar_object_free(foobar_object_t* obj){
 		case STRING:
 			free(obj->data.f_string);
 			break;
-		case LIST:
+		case LIST: {
 			foobar_object_t* list = obj->data.f_list;
 			free(list->elements);
 			break;
+		}
 	}
 	free(obj);
 }
