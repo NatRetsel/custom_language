@@ -27,7 +27,7 @@ void frame_reference_object(frame_t* frame, foobar_object_t* obj);
 void mark(vm_t* vm);
 
 void trace(vm_t *vm);
-void trace_blacken_objects(stack_toy_t *gray_objects, foobar_object_t *obj);
+void trace_blacken_object(stack_toy_t *gray_objects, foobar_object_t *obj);
 void trace_mark_object(stack_toy_t *gray_objects, foobar_object_t *obj);
 
 void sweep(vm_t* vm);

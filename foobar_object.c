@@ -5,34 +5,76 @@
 #include "foobar_object.h"
 
 foobar_object_t* new_integer(vm_t* vm, int f){
-	// Allocate memory on the heap for foobar_object_t
+	/*
+		Creates a new integer object on the heap and track it within the vm.
+		If memory allocation fails, NULL is returned. Calls the helper function _new_foobar_obj 
+		to allocate memory and create the object.
+		Parameters:
+			vm: vm_t*
+			f: int
+
+		Returns:
+			foobar_object_t*
+
+		Example:
+			foobar_object_t* foobar_obj = new_integer(vm, 1);
+			printf("%d", foobar_obj->data.f_int);
+			Output:
+				1
+				
+	*/
 	foobar_object_t* foobar_obj = _new_foobar_obj(vm);
 	if (foobar_obj == NULL) return NULL;
 
-	// Assign enum of type INTEGER
 	foobar_obj->kind = INTEGER;
-
-	// Assign data
 	foobar_obj->data.f_int = f;
 	
 	return foobar_obj;
 }
 
 foobar_object_t* new_float(vm_t* vm, float f){
-	// Allocate memory on the heap for foobar_object_t
+	/*
+		Creates a new float object on the heap and track it within the vm.
+		If memory allocation fails, NULL is returned.
+		Parameters:
+			vm: vm_t*
+			f: float
+
+		Returns:
+			foobar_object_t*
+
+		Example:
+			foobar_object_t* foobar_obj = new_float(vm, 1.0);
+			printf("%f", foobar_obj->data.f_float);
+			Output:
+				1.000000
+	*/
 	foobar_object_t* foobar_obj = _new_foobar_obj(vm);
 	if (foobar_obj == NULL) return NULL;
 
-	// Assign enum of type FLOAT
 	foobar_obj->kind = FLOAT;
-
-	// Assign data
 	foobar_obj->data.f_float = f;
 	
 	return foobar_obj;
 }
 
 foobar_object_t* new_string(vm_t* vm, char* f){
+	/*
+		Creates a new string object on the heap and track it within the vm.
+		If memory allocation fails, NULL is returned.
+		Parameters:
+			vm: vm_t*
+			f: char*
+
+		Returns:
+			foobar_object_t*
+
+		Example:
+			foobar_object_t* foobar_obj = new_string(vm, "Hello World");
+			printf("%s", foobar_obj->data.f_string);
+			Output:
+				Hello World
+	*/
 	foobar_object_t* foobar_obj = _new_foobar_obj(vm);
 	if (foobar_obj == NULL) return NULL;
 	char* foobar_str = malloc(strlen(f)+1);
@@ -50,6 +92,22 @@ foobar_object_t* new_string(vm_t* vm, char* f){
 }
 
 foobar_object_t* new_list(vm_t* vm, size_t size){
+	/*
+		Creates a new list object on the heap and track it within the vm.
+		If memory allocation fails, NULL is returned.
+		Parameters:
+			vm: vm_t*
+			size: size_t
+
+		Returns:
+			foobar_object_t*
+
+		Example:
+			foobar_object_t* foobar_obj = new_list(vm, 1);
+			printf("%d", foobar_obj->data.f_list.size);
+			Output:
+				1
+	*/
 	foobar_object_t* foobar_obj = _new_foobar_obj(vm);
 	if (foobar_obj == NULL) return NULL;
 	foobar_object_t** list_elements = calloc(size, sizeof(foobar_object_t*));
@@ -63,20 +121,82 @@ foobar_object_t* new_list(vm_t* vm, size_t size){
 }
 
 foobar_object_t* list_get(foobar_object_t* foobar_obj, int index){
+	/*
+		Gets the element at the given index in the list.
+		If the list is NULL or the index is out of bounds, NULL is returned.
+		Parameters:
+			foobar_obj: foobar_object_t*
+			index: int
+		Returns:
+			foobar_object_t*
+
+		Example:
+			foobar_object_t* foobar_obj = new_list(vm, 1);
+			foobar_object_t* foobar_obj_one = new_integer(vm, 1);
+			foobar_object_t* foobar_obj_two = new_integer(vm, 2);
+			list_set(foobar_obj, 0, foobar_obj_one);
+			foobar_object_t* foobar_obj_three = list_get(foobar_obj, 0);
+			printf("%d", foobar_obj_three->data.f_int);
+			Output:
+				1
+
+	*/
 	if (foobar_obj == NULL || foobar_obj->kind != LIST) return NULL;
 	if (index < 0 || index > foobar_obj->data.f_list.size) return NULL;
 	return foobar_obj->data.f_list.elements[index];
 }
 
 bool list_set(foobar_object_t* foobar_obj, int index, foobar_object_t* value){
+	/*
+		Sets the element at the given index in the list to the given value.
+		If the list or value is NULL or the index is out of bounds, false is returned.
+		Parameters:
+			foobar_obj: foobar_object_t*
+			index: int
+			value: foobar_object_t*
+		Returns:
+			bool
+		Example:
+			foobar_object_t* foobar_obj = new_list(vm, 1);
+			foobar_object_t* foobar_obj_one = new_integer(vm, 1);
+			foobar_object_t* foobar_obj_two = new_integer(vm, 2);
+			list_set(foobar_obj, 0, foobar_obj_one);
+			foobar_object_t* foobar_obj_three = list_get(foobar_obj, 0);
+			printf("%d", foobar_obj_three->data.f_int);
+			Output:
+				1
+	*/
 	if (foobar_obj == NULL || value == NULL || foobar_obj->kind != LIST) return false;
-	if (index < 0 || index > foobar_obj->data.f_list.size) return false;
+	if (index < 0 || index >= foobar_obj->data.f_list.size) return false;
 	foobar_obj->data.f_list.elements[index] = value;
 	return true;
 }
 
 foobar_object_t* foobar_add(vm_t* vm, foobar_object_t* foobar_obj_one, foobar_object_t* foobar_obj_two){
+	/*
+		Adds two foobar objects together.
+		If the objects are of incompatible types, NULL is returned.
+		Parameters:
+			vm: vm_t*
+			foobar_obj_one: foobar_object_t*
+			foobar_obj_two: foobar_object_t*
+		Returns:
+			foobar_object_t*
+				INTEGER + INTEGER = INTEGER
+				INTEGER + FLOAT = FLOAT
+				FLOAT + FLOAT = FLOAT
+				STRING + STRING = STRING (CONCATENATE AND RETURN NEW STRING)
+				LIST + LIST = LIST (EXTEND AND RETURN NEW STRING)
 
+		Example:
+			foobar_object_t* foobar_obj_one = new_integer(vm, 1);
+			foobar_object_t* foobar_obj_two = new_integer(vm, 2);
+			foobar_object_t* foobar_obj_three = foobar_add(vm, foobar_obj_one, foobar_obj_two);
+			printf("%d", foobar_obj_three->data.f_int);
+			Output:
+				3
+
+	*/
 	switch (foobar_obj_one->kind){
 		case INTEGER:
 			if (foobar_obj_two->kind == INTEGER){
@@ -131,6 +251,14 @@ foobar_object_t* foobar_add(vm_t* vm, foobar_object_t* foobar_obj_one, foobar_ob
 }
 
 foobar_object_t* _new_foobar_obj(vm_t* vm){
+	/*
+		Creates a new foobar object on the heap and track it within the vm.
+		If memory allocation fails, NULL is returned.
+		Parameters:
+			vm: vm_t*
+		Returns:
+			foobar_object_t*
+	*/
 	foobar_object_t* foobar_obj = malloc(sizeof(foobar_object_t));
 	if (foobar_obj == NULL) return NULL;
     foobar_obj->is_marked = false;
@@ -139,6 +267,17 @@ foobar_object_t* _new_foobar_obj(vm_t* vm){
 }
 
 void foobar_object_free(foobar_object_t* obj){
+	/*
+		Frees the memory allocated for the foobar object.
+		Frees the memory for stored objects within collection types first.
+		Parameters:
+			obj: foobar_object_t*
+
+		Example:
+			foobar_object_t* foobar_obj = new_integer(vm, 1);
+			foobar_object_free(foobar_obj);
+
+	*/
 	switch (obj->kind){
 		case INTEGER:
 		case FLOAT:

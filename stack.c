@@ -3,12 +3,18 @@
 #include "stack.h"
 
 void stack_push(stack_toy_t *stack, void *obj) {
+  /*
+    Pushes object into stack.
+    if stack is full, double the capacity
+    @param stack: stack to push into
+    @param obj: object to push into stack
+    @return: void
+  */
   if (stack->count == stack->capacity) {
-    // Double stack capacity to avoid reallocing often
+    // Double the capacity
     stack->capacity *= 2;
     stack->data = realloc(stack->data, stack->capacity * sizeof(void *));
     if (stack->data == NULL) {
-      // Unable to realloc, just exit :) get gud
       exit(1);
     }
   }
@@ -20,6 +26,12 @@ void stack_push(stack_toy_t *stack, void *obj) {
 }
 
 void *stack_pop(stack_toy_t *stack) {
+  /*
+    Pops and returns the item at the top of stack.
+    @param stack: stack to pop from
+    @return: object at the top of stack
+    @return: NULL if stack is empty
+  */
   if (stack->count == 0) {
     return NULL;
   }
@@ -29,6 +41,11 @@ void *stack_pop(stack_toy_t *stack) {
 }
 
 void stack_free(stack_toy_t *stack) {
+  /*
+    Frees the stack, first by freeing the data, then the stack.
+    @param stack: stack to free
+    @return: void
+  */
   if (stack == NULL) {
     return;
   }
@@ -43,6 +60,11 @@ void stack_free(stack_toy_t *stack) {
 }
 
 void stack_remove_nulls(stack_toy_t *stack) {
+  /*
+    Removes all NULL pointers from the stack.
+    @param stack: stack to remove NULL pointers from
+    @return: void
+  */
   size_t new_count = 0;
 
   // Iterate through the stack and compact non-NULL pointers.
@@ -62,6 +84,12 @@ void stack_remove_nulls(stack_toy_t *stack) {
 }
 
 stack_toy_t *stack_new(size_t capacity) {
+  /*
+    Creates a new stack with the given capacity on the heap.
+    @param capacity: capacity of the stack
+    @return: stack
+    @return: NULL if malloc fails
+  */
   stack_toy_t *stack = malloc(sizeof(stack_toy_t));
   if (stack == NULL) {
     return NULL;
